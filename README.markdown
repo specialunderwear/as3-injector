@@ -15,15 +15,15 @@ Since this utility uses custom meta tags (Inject and InjectComplete) you should 
 
 Dependencies can be injected into an Object as a property, setter or method. To indicate an injection target, you should use the Inject meta tag and make the target public.
 
-`    [Inject]
-    public var myValue: String;`
+    [Inject]
+    public var myValue: String;
 
 Named injection targets can be indicated as followed:
 
-`    [Inject( name="myInjectionName" )]
-    public var myValue: String;`
+    [Inject( name="myInjectionName" )]
+    public var myValue: String;
 
 Probably you will ask yourself: at what point do I know all injections are done? Therefore we have the InjectComplete meta tag which can be used on a public method. This method will be triggered as soon all dependencies are injected. You can use the InjectComplete meta tag as followed:
 
-`    [InjectComplete]
-    public function initialize(): void {}`
+    [InjectComplete]
+    public function initialize(): void {}
