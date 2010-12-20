@@ -51,7 +51,7 @@ Now we are familiar with setting up our dependencies in Objects, we only have to
 
 #### Mapping a value
 
-	var myValue: String = 'myInjectedValue' );
+	var myValue: String = 'myInjectedValue';
 	
 	injector.mapValue( myValue, String );
 
@@ -80,7 +80,7 @@ Sample code to inject the mapped singleton:
 
 ### Child injection
 
-Due the fact mappings overwrite each other, the injector has the ability to create child injectors. By creating a child injector you will be able to define a new mapping on top of the parent injector's mapping. By injection an Object, the child injector automatically checks whether to get the injection from it's parent or not. Of course the mappings of the child injector have the highest priority.
+Due the fact mappings overwrite each other, the injector has the ability to create child injectors. By creating a child injector you will be able to define a new mapping on top of the parent injector's mapping. By injecting an Object, the child injector automatically checks whether to get the injection from it's parent or not. Of course the mappings of the child injector has the highest priority.
 
 	// map default values
 	var injector: IInjector = new Injector;
