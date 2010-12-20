@@ -47,7 +47,7 @@ Now we are familiar with setting up our dependencies in Objects, we only have to
 * Mapping a new instance of an Object
 * Mapping a singleton of an Object (one instance)
 
-**Note**: the name of the (public) property, setter or method doesn't matter. The injector only looks at the type of Class you want to inject an the optional name of it.
+**Note**: the name of the (public) property, setter or method doesn't matter. The injector only looks at the type of Class you want to inject an the optional name of the meta tag.
 
 #### Mapping a value
 
