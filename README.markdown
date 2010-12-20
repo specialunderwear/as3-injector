@@ -27,3 +27,53 @@ Probably you will ask yourself: at what point do I know all injections are done?
 
     [InjectComplete]
     public function initialize(): void {}
+
+### Inject Objects
+
+Dependency Injection doesn't just work when you are creating new instances on the fly. Therefore you should manually call the `inject` method or create an instance of your Object by using the `instantiate` method of the injector.
+
+	var injector: IInjector = new Injector;
+		
+	var foo: MyObject = new MyObject;
+	injector.inject( foo );
+	
+	var bar: MyObject = injector.instantiate( MyObject ) as MyObject;
+
+### Map injections
+
+Now we are familiar with setting up our dependencies in Objects, we only have to map the injections we want to use. We have three type of mappings:
+
+* Mapping a value
+* Mapping a new instance of an Object
+* Mapping a singleton of an Object (one instance)
+
+**Note**: the name of the (public) property, setter or method doesn't matter. The injector only looks at the type of Class you want to inject an the optional name of it.
+
+#### Mapping a value
+
+	var myValue: String = 'myInjectedValue' );
+	
+	injector.mapValue( myValue, String );
+
+Sample code to inject the mapped value:
+
+	[Inject]
+	var myValue: String;
+
+#### Mapping a new instance of an Object
+
+	injector.mapClass( MyClass, MyClass );
+
+Sample code to inject the mapped instance:
+
+	[Inject]
+	var myClass: MyClass;
+
+#### Mapping a singleton of an Object (one instance)
+
+	injector.mapSingleton( MyClass, MyClass );
+
+Sample code to inject the mapped singleton:
+
+	[Inject]
+	var mySingleton: MyClass;
