@@ -47,7 +47,7 @@ Now we are familiar with setting up our dependencies in Objects, we only have to
 * Mapping a new instance of an Object
 * Mapping a singleton of an Object (one instance)
 
-**Note**: the name of the (public) property, setter or method doesn't matter. The injector only looks at the type of Class you want to inject an the optional name of the meta tag.
+**Note**: the name of the (public) property, setter or method doesn't matter. The injector only looks at the type of Class you want to inject an the optional name of it.
 
 #### Mapping a value
 
@@ -77,3 +77,66 @@ Sample code to inject the mapped singleton:
 
 	[Inject]
 	var mySingleton: MyClass;
+
+### Child injection
+
+Due the fact mappings overwrite each other, the injector has the ability to create child injectors. By creating a child injector you will be able to define a new mapping on top of the parent injector's mapping. By injection an Object, the child injector automatically checks whether to get the injection from it's parent or not. Of course the mappings of the child injector have the highest priority.
+
+	// map default values
+	var injector: IInjector = new Injector;
+	
+	injector.mapValue( 'foo', String );
+	injector.mapValue( 10, Number );
+	
+	injector.instantiate( Foo );
+	
+	// map child values
+	var child: IInjector = injector.createChildInjector();
+	
+	child.mapValue( 'bar', String );
+	
+	child.instantiate( Biz );
+
+#### Foo
+
+	package
+	{
+		public class Foo
+		{
+			[Inject]
+			/**
+			 * Value of the property will be 'foo'
+			 */
+			public var myString: String;
+
+			[Inject]
+			/**
+			 * Value of the property will be '10'
+			 */
+			public var myNumber: Number;
+
+			public function Foo() {}
+		}
+	}
+
+#### Biz
+
+	package
+	{
+		public class Biz
+		{
+			[Inject]
+			/**
+			 * Value of the property will be 'bar'
+			 */
+			public var myString: String;
+
+			[Inject]
+			/**
+			 * Value of the property will be '10'
+			 */
+			public var myNumber: Number;
+
+			public function Biz() {}
+		}
+	}
