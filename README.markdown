@@ -4,7 +4,7 @@ Download the source files and include them into your project. If you prefer to u
 
 ## Compiler arguments
 
-Since this utility uses custom meta tags (Inject and InjectComplete) you should keep these meta tags while compiling your swf files. Include the following two lines in your compiler arguments:
+Since this utility uses custom meta tags (Inject and InjectComplete) you should keep these meta tags while compiling your swf files. This only applies when you are not compiling your project in debug mode. Include the following two lines in your compiler arguments:
 
 * `-keep-as3-metadata+=Inject`
 * `-keep-as3-metadata+=InjectComplete`
