@@ -1,142 +1,163 @@
+# AS3 Model View Controller / Inversion of Control Framework
+
+## Available patterns
+
+* Model
+	* Proxy
+* View
+	* Mediator
+* Controller
+	* Command
+	* MacroCommand
+	* AsyncCommand
+	* ASyncMacroCommand
+
+## Inversion of Control (Dependency Injection)
+
+This framework uses the [Injector](https://github.com/moorinteractive/as3-injector/) utility to provide all Objects of it's dependencies. If you don't prefer using IoC, I suggest you to use another framework (for example [PureMVC](http://puremvc.org/)).
+
 ## Setup
 
 Download the source files and include them into your project. If you prefer to use a swc library file, download one of the packages and add it to your project library files.
 
-## Compiler arguments
-
-Since this utility uses custom meta tags (Inject and InjectComplete) you should keep these meta tags while compiling your swf files. This only applies when you are not compiling your project in debug mode. Include the following two lines in your compiler arguments:
-
-* `-keep-as3-metadata+=Inject`
-* `-keep-as3-metadata+=InjectComplete`
-
 ## Usage
 
-### Injection targets
+## Extending the Framework
 
-Dependencies can be injected into an Object as a property, setter or method. To indicate an injection target, you should use the Inject meta tag and make the target public.
+The first thing to setup a new project environment is to create the heart of your application. Within that Class you should write your initial code for the application (such as required mappings).
 
-    [Inject]
-    public var myValue: String;
+	package nl.moori.application
+	{
+		import flash.display.DisplayObjectContainer;
 
-Named injection targets can be indicated as followed:
+		import nl.moori.framework.core.Framework;
 
-    [Inject( name="myInjectionName" )]
-    public var myValue: String;
-
-Probably you will ask yourself: at what point do I know all injections are done? Therefore we have the InjectComplete meta tag which can be used on a public method. This method will be triggered as soon all dependencies are injected. You can use the InjectComplete meta tag as followed:
-
-    [InjectComplete]
-    public function initialize(): void {}
-
-### Inject Objects
-
-Dependency Injection doesn't just work when you are creating new instances on the fly. Therefore you should manually call the `inject` method or create an instance of your Object by using the `instantiate` method of the injector.
-
-	var injector: IInjector = new Injector;
+		public class Application extends Framework
+		{
+			public function Application( container: DisplayObjectContainer )
+			{
+				super( container );
+			}
 		
-	var foo: MyObject = new MyObject;
-	injector.inject( foo );
-	
-	var bar: MyObject = injector.instantiate( MyObject ) as MyObject;
-
-### Map injections
-
-Now we are familiar with setting up our dependencies in Objects, we only have to map the injections we want to use. We have three type of mappings:
-
-* Mapping a value
-* Mapping a new instance of an Object
-* Mapping a singleton of an Object (one instance)
-
-**Note**: the name of the (public) property, setter or method doesn't matter. The injector only looks at the type of Class you want to inject an the optional name of it.
-
-#### Mapping a value
-
-	var myValue: String = 'myInjectedValue';
-	
-	injector.mapValue( myValue, String );
-
-Sample code to inject the mapped value:
-
-	[Inject]
-	var myValue: String;
-
-#### Mapping a new instance of an Object
-
-	injector.mapClass( MyClass, MyClass );
-
-Sample code to inject the mapped instance:
-
-	[Inject]
-	var myClass: MyClass;
-
-#### Mapping a singleton of an Object (one instance)
-
-	injector.mapSingleton( MyClass, MyClass );
-
-Sample code to inject the mapped singleton:
-
-	[Inject]
-	var mySingleton: MyClass;
-
-### Child injection
-
-Due the fact mappings overwrite each other, the injector has the ability to create child injectors. By creating a child injector you will be able to define a new mapping on top of the parent injector's mapping. By injecting an Object, the child injector automatically checks whether to get the injection from it's parent or not. Of course the mappings of the child injector has the highest priority.
-
-	// map default values
-	var injector: IInjector = new Injector;
-	
-	injector.mapValue( 'foo', String );
-	injector.mapValue( 10, Number );
-	
-	injector.instantiate( Foo );
-	
-	// map child values
-	var child: IInjector = injector.createChildInjector();
-	
-	child.mapValue( 'bar', String );
-	
-	child.instantiate( Biz );
-
-#### Foo
-
-	package
-	{
-		public class Foo
-		{
-			[Inject]
-			/**
-			 * Value of the property will be 'foo'
-			 */
-			public var myString: String;
-
-			[Inject]
-			/**
-			 * Value of the property will be '10'
-			 */
-			public var myNumber: Number;
-
-			public function Foo() {}
+			override protected function initialize(): void
+			{
+				// do you mappings
+			}
 		}
 	}
 
-#### Biz
+To initialize your heart of the application, just create and store an instance of your Class in your scope. **Note**: do not store the instance is a variable which is out of the scope, since the Garbage Collector will clean up this variable.
 
 	package
 	{
-		public class Biz
+		import flash.display.Sprite;
+		import flash.display.StageAlign;
+		import flash.display.StageScaleMode;
+		import flash.events.Event;
+	
+		import nl.moori.demo.Application;
+	
+		public class Demo extends Sprite
 		{
-			[Inject]
-			/**
-			 * Value of the property will be 'bar'
-			 */
-			public var myString: String;
-
-			[Inject]
-			/**
-			 * Value of the property will be '10'
-			 */
-			public var myNumber: Number;
-
-			public function Biz() {}
+			private var application: Application;
+		
+			public function Demo()
+			{
+				super();
+			
+				addEventListener( Event.ADDED_TO_STAGE, onAddedToStage, false, 0, true );
+			}
+		
+			private function onAddedToStage( evt: Event ): void
+			{
+				removeEventListener( Event.ADDED_TO_STAGE, onAddedToStage );
+			
+				stage.align = StageAlign.TOP_LEFT;
+				stage.scaleMode = StageScaleMode.NO_SCALE;
+				stage.frameRate = 30;
+			
+				application = new Application( this );
+			}
 		}
 	}
+
+Now you will be ready to start writing the logic of your application. Probably you want to dispatch an StartupEvent which executes a StartupCommand.
+
+	package nl.moori.demo
+	{
+		import flash.display.DisplayObjectContainer;
+
+		import nl.moori.demo.controller.StartupCommand;
+		import nl.moori.demo.events.ApplicationEvent;
+		import nl.moori.framework.core.Framework;
+
+		public class Application extends Framework
+		{
+			public function Application( container: DisplayObjectContainer )
+			{
+				super( container );
+			}
+	
+			public function startup( options: Object ): void
+			{
+				dispatchEvent( new ApplicationEvent( ApplicationEvent.STARTUP, options ));
+			}
+	
+			override protected function initialize(): void
+			{
+				controller.mapEvent( ApplicationEvent.STARTUP, ApplicationEvent, StartupCommand );
+			}
+		}
+	}
+
+## Model & Proxies
+
+Since this framework uses Dependency Injection, we assume when you use a Proxy you will inject it. Therefore you won't find a property like model or proxyMap.
+
+To inject a Proxy, simply use the injector to map an instance/singleton of your Proxy (in most cases a singleton, since we only need one instance of it though the application):
+	
+	injector.mapSingleton( MyProxy, IMyProxy );
+	injector.mapClass( MyProxy, IMyProxy );
+
+## View & Mediator's
+
+Mediator's can be registered in two ways in your framework. You can manually attach a Mediator to an existing viewComponent or let the framework automatically attach Mediator's when a specific type of viewComponent is added  on the Display List. When a Mediator is registered by the View (automatically), the Mediator will also be detached when the viewComponent is removed from the Stage. Therefore we have the `onRegister` and `onRemove` methods you can override. The viewComponent will be injected into the attached Mediator which you can retrieve by it's Class type. Let's take a look at the following examples:
+
+### Manual mapping
+
+	var menu: Menu = new Menu;
+
+	container.addChild( menu );
+
+	view.instantiateMediator( menu, MenuMediator );
+
+### Automatic mapping
+
+	view.mapView( Menu, MenuMediator );
+
+	container.addChild( new Menu );
+
+### MenuMediator
+
+	package nl.moori.demo.view.menu
+	{
+		import nl.moori.framework.patterns.mediator.Mediator;
+
+		public class MenuMediator extends Mediator
+		{
+			[Inject]
+			public var view: Menu;
+		
+			override public function onRegister(): void
+			{
+				// add view/framewok listeners
+			}
+		
+			override public function onRemove(): void
+			{
+				// remove view/framewok listeners
+			}
+		}
+	}
+
+## Controller & Commands
